@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Scan History - Wi-Fi Bastion{% endblock %}
+
+{% block body %}
+    <h1>Scan History</h1>
+
+    <!-- Scan History Table -->
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Scan ID</th>
+                <th>SSID</th>
+                <th>Signal Strength</th>
+                <th>Encryption Type</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for scan in scans %}
+            <tr>
+                <td>{{ scan._id }}</td>
+                <td>{{ scan.ssid }}</td>
+                <td>{{ scan.signal }}</td>
+                <td>{{ scan.encryption }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

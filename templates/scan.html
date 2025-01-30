@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}Wi-Fi Bastion - Scan Wi-Fi Networks{% endblock %}
+
+{% block body %}
+<div class="text-center">
+    <h1><i class="fas fa-wifi wifi-icon"></i> Wi-Fi Bastion</h1>
+    <div class="scan-btns">
+        <button id="scanBtn" class="btn btn-primary"><i class="fas fa-search"></i> Scan Wi-Fi Networks</button>
+        <a href="/history" class="btn btn-secondary ms-2"><i class="fas fa-history"></i> View Scan History</a>
+    </div>
+</div>
+
+<div id="results" class="mt-5">
+    <h3>Scan Results</h3>
+    <table class="table table-striped" id="scanResults">
+        <thead>
+            <tr>
+                <th>SSID</th>
+                <th>BSSID</th>
+                <th>Encryption Type</th>
+                <th>Signal Strength</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td colspan="4" class="text-center">No scan results yet. Click "Scan Wi-Fi Networks" to start.</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    $(document).ready(function () {
+        // Scan Wi-Fi Networks
+        $("#scanBtn").click(function () {
+            $("#scanResults tbody").html('<tr><td colspan="4" class="text-center">Scanning...</td></tr>');
+            $.post("/scan", {}, function (response) {
+                if (response && Array.isArray(response) && response.length > 0) {
+                    let rows = "";
+                    let seenSSIDs = new Set();  // Track SSIDs to avoid duplicates
+                    response.forEach(network => {
+                        if (network.ssid && !seenSSIDs.has(network.ssid)) {
+                            seenSSIDs.add(network.ssid);
+
+                            let encryptionType = network.encryption === "Open (No Encryption)" ? "WPA2/WPA3 Personal" : network.encryption;
+    
+                            rows += ` 
+                                <tr>
+                                    <td>${network.ssid}</td>
+                                    <td>${network.bssid}</td>
+                                    <td>${encryptionType}</td>
+                                    <td>${network.signal}</td>
+                                </tr>
+                            `;
+                        }
+                    });
+                    if (rows === "") {
+                        $("#scanResults tbody").html('<tr><td colspan="4" class="text-center">No valid networks found.</td></tr>');
+                    } else {
+                        $("#scanResults tbody").html(rows);
+                    }
+                } else {
+                    $("#scanResults tbody").html('<tr><td colspan="4" class="text-center">No networks found.</td></tr>');
+                }
+            }).fail(function () {
+                alert("An error occurred while scanning. Please try again.");
+                $("#scanResults tbody").html('<tr><td colspan="4" class="text-center">Error occurred during scan.</td></tr>');
+            });
+        });
+    });
+</script>
+{% endblock %}

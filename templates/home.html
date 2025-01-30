@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %}Wi-Fi Bastion - Home{% endblock %}
+
+{% block body %}
+<div class="container text-center mt-5">
+    <h1 class="mb-4">Welcome to Wi-Fi Bastion</h1>
+    <p class="lead">
+        Wi-Fi Bastion is a cutting-edge web-based application developed to safeguard users from potential cyber threats posed by malicious Wi-Fi networks.
+    </p>
+    <p>
+        By scanning available Wi-Fi networks in real time, the app detects and identifies suspicious networks, such as those with weak or no encryption, or networks attempting to mimic legitimate hotspots through "Evil Twin" attacks.
+    </p>
+    <p>
+        The application uses advanced network scanning to analyze SSIDs, BSSIDs, encryption types, and signal strengths. It provides real-time alerts and empowers users to make informed decisions before connecting to any Wi-Fi network.
+    </p>
+
+    <div class="mt-4">
+        <a href="/scan" class="btn btn-primary btn-lg">Proceed to Scan</a>
+    </div>
+</div>
+{% endblock %}
