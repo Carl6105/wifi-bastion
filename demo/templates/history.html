@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Scan History - Wi-Fi Bastion Demo{% endblock %}
+
+{% block body %}
+    <h1>Scan History (Demo)</h1>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>SSID</th>
+                <th>Signal</th>
+                <th>Encryption</th>
+                <th>Threat</th>
+                <th>Threat Level</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for scan in scans %}
+            <tr class="{{ 'table-danger' if scan.threat_level == 'High' else 'table-warning' if scan.threat_level == 'Medium' else 'table-success' }}">
+                <td>{{ scan.ssid }}</td>
+                <td>{{ scan.signal }}</td>
+                <td>{{ scan.encryption }}</td>
+                <td>{{ scan.threat }}</td>
+                <td>{{ scan.threat_level }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

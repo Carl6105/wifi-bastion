@@ -13,16 +13,18 @@
                 <th>SSID</th>
                 <th>Signal Strength</th>
                 <th>Encryption Type</th>
+                <th>Threats Detected</th>  <!-- New Column -->
             </tr>
         </thead>
         <tbody>
             {% for scan in scans %}
             <tr>
-                <td>{{ scan._id }}</td>
+                <td>{{ scan._id|string }}</td>  <!-- Convert _id to string just in case -->
                 <td>{{ scan.ssid }}</td>
                 <td>{{ scan.signal }}</td>
                 <td>{{ scan.encryption }}</td>
-            </tr>
+                <td>{{ scan.threats }}</td>
+            </tr>            
             {% endfor %}
         </tbody>
     </table>

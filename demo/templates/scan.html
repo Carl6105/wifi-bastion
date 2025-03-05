@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}Wi-Fi Bastion - Scan Demo{% endblock %}
+
+{% block body %}
+<div class="text-center">
+    <h1><i class="fas fa-wifi"></i> Wi-Fi Bastion Demo</h1>
+    <button id="scanBtn" class="btn btn-primary"><i class="fas fa-search"></i> Simulate Scan</button>
+</div>
+
+<div id="results" class="mt-5">
+    <h3>Scan Results</h3>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>SSID</th>
+                <th>BSSID</th>
+                <th>Encryption</th>
+                <th>Signal</th>
+                <th>Threat</th>
+                <th>Threat Level</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr><td colspan="6" class="text-center">Click "Simulate Scan" to generate demo threats.</td></tr>
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    $(document).ready(function () {
+        $("#scanBtn").click(function () {
+            $("#results tbody").html('<tr><td colspan="6" class="text-center">Scanning...</td></tr>');
+            $.post("/scan", {}, function (response) {
+                if (response && Array.isArray(response)) {
+                    let rows = "";
+                    response.forEach(network => {
+                        let rowClass = network.threat_level === "High" ? "table-danger" :
+                                       network.threat_level === "Medium" ? "table-warning" : "table-success";
+
+                        rows += `
+                            <tr class="${rowClass}">
+                                <td>${network.ssid}</td>
+                                <td>${network.bssid}</td>
+                                <td>${network.encryption}</td>
+                                <td>${network.signal}</td>
+                                <td>${network.threat}</td>
+                                <td>${network.threat_level}</td>
+                            </tr>
+                        `;
+                    });
+                    $("#results tbody").html(rows);
+                } else {
+                    $("#results tbody").html('<tr><td colspan="6" class="text-center">No threats found.</td></tr>');
+                }
+            }).fail(function () {
+                alert("Error during scan simulation.");
+            });
+        });
+    });
+</script>
+{% endblock %}

@@ -20,11 +20,12 @@
                 <th>BSSID</th>
                 <th>Encryption Type</th>
                 <th>Signal Strength</th>
+                <th>Threats</th> <!-- New Column for Threat Detection -->
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td colspan="4" class="text-center">No scan results yet. Click "Scan Wi-Fi Networks" to start.</td>
+                <td colspan="5" class="text-center">No scan results yet. Click "Scan Wi-Fi Networks" to start.</td>
             </tr>
         </tbody>
     </table>
@@ -36,38 +37,50 @@
     $(document).ready(function () {
         // Scan Wi-Fi Networks
         $("#scanBtn").click(function () {
-            $("#scanResults tbody").html('<tr><td colspan="4" class="text-center">Scanning...</td></tr>');
+            $("#scanResults tbody").html('<tr><td colspan="5" class="text-center">Scanning...</td></tr>');
+
             $.post("/scan", {}, function (response) {
                 if (response && Array.isArray(response) && response.length > 0) {
                     let rows = "";
-                    let seenSSIDs = new Set();  // Track SSIDs to avoid duplicates
+                    let seenSSIDs = new Set();
+
                     response.forEach(network => {
                         if (network.ssid && !seenSSIDs.has(network.ssid)) {
                             seenSSIDs.add(network.ssid);
 
                             let encryptionType = network.encryption === "Open (No Encryption)" ? "WPA2/WPA3 Personal" : network.encryption;
-    
+                            let threatLevel = "text-success";  // Default: No Threats (Green ✅)
+
+                            if (network.threats.includes("⚠️")) {
+                                threatLevel = "text-warning";  // Warning (Yellow ⚠️)
+                            }
+                            if (network.threats.includes("🚨")) {
+                                threatLevel = "text-danger";  // Critical Threat (Red 🚨)
+                            }
+
                             rows += ` 
                                 <tr>
                                     <td>${network.ssid}</td>
                                     <td>${network.bssid}</td>
                                     <td>${encryptionType}</td>
                                     <td>${network.signal}</td>
+                                    <td class="${threatLevel}">${network.threats}</td> <!-- Threat Display -->
                                 </tr>
                             `;
                         }
                     });
+
                     if (rows === "") {
-                        $("#scanResults tbody").html('<tr><td colspan="4" class="text-center">No valid networks found.</td></tr>');
+                        $("#scanResults tbody").html('<tr><td colspan="5" class="text-center">No valid networks found.</td></tr>');
                     } else {
                         $("#scanResults tbody").html(rows);
                     }
                 } else {
-                    $("#scanResults tbody").html('<tr><td colspan="4" class="text-center">No networks found.</td></tr>');
+                    $("#scanResults tbody").html('<tr><td colspan="5" class="text-center">No networks found.</td></tr>');
                 }
             }).fail(function () {
                 alert("An error occurred while scanning. Please try again.");
-                $("#scanResults tbody").html('<tr><td colspan="4" class="text-center">Error occurred during scan.</td></tr>');
+                $("#scanResults tbody").html('<tr><td colspan="5" class="text-center">Error occurred during scan.</td></tr>');
             });
         });
     });
