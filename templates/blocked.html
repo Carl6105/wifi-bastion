@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Blocked Networks - Wi-Fi Bastion{% endblock %}
+
+{% block body %}
+    <h1>Blocked Networks</h1>
+
+    <!-- Blocked Networks Table -->
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Network ID</th>
+                <th>BSSID</th>
+                <th>Blocked At</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if networks|length > 0 %}
+                {% for network in networks %}
+                <tr>
+                    <td>{{ network.network_id }}</td>
+                    <td>{{ network.bssid }}</td>
+                    <td>{{ network.blocked_at|timestamp_to_date }}</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning unblock-network" data-id="{{ network._id }}">Unblock Network</button>
+                    </td>
+                </tr>            
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="4" class="text-center">No blocked networks found.</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+
+    <div class="mt-3">
+        <a href="/history" class="btn btn-secondary">Back to Scan History</a>
+    </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    $(document).ready(function () {
+        // Handle Unblock Network button clicks
+        $(document).on('click', '.unblock-network', function() {
+            const networkId = $(this).data('id');
+            const button = $(this);
+            
+            $.post('/unblock_network', {
+                network_id: networkId
+            }, function(response) {
+                if (response.status === 'success') {
+                    // Remove the row from the table
+                    button.closest('tr').fadeOut(300, function() {
+                        $(this).remove();
+                        // If no more rows, add the "No blocked networks" message
+                        if ($('tbody tr').length === 0) {
+                            $('tbody').html('<tr><td colspan="4" class="text-center">No blocked networks found.</td></tr>');
+                        }
+                    });
+                    alert('Network successfully unblocked!');
+                } else {
+                    alert('Error: ' + response.message);
+                }
+            }).fail(function() {
+                alert('Failed to unblock network. Please try again.');
+            });
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,5 @@
+# Wi-Fi Bastion Requirements
+flask==2.0.1
+pymongo==4.0.1
+pywifi==1.1.12
+python-dotenv==0.19.1

@@ -35,6 +35,27 @@
 {% block extra_scripts %}
 <script>
     $(document).ready(function () {
+        // Handle Block Network button clicks
+        $(document).on('click', '.block-network', function() {
+            const networkId = $(this).data('id');
+            const bssid = $(this).data('bssid');
+            const button = $(this);
+            
+            $.post('/block_network', {
+                network_id: networkId,
+                bssid: bssid
+            }, function(response) {
+                if (response.status === 'success') {
+                    button.removeClass('btn-danger').addClass('btn-secondary').text('Blocked').prop('disabled', true);
+                    alert('Network successfully blocked!');
+                } else {
+                    alert('Error: ' + response.message);
+                }
+            }).fail(function() {
+                alert('Failed to block network. Please try again.');
+            });
+        });
+        
         // Scan Wi-Fi Networks
         $("#scanBtn").click(function () {
             $("#scanResults tbody").html('<tr><td colspan="5" class="text-center">Scanning...</td></tr>');
@@ -58,13 +79,22 @@
                                 threatLevel = "text-danger";  // Critical Threat (Red 🚨)
                             }
 
+                            // Add block button for Evil Twin networks
+                            let blockButton = '';
+                            if (network.threats.includes('Evil Twin Attack')) {
+                                blockButton = `<button class="btn btn-sm btn-danger block-network" data-id="${network._id}" data-bssid="${network.bssid}">Block Network</button>`;
+                            }
+                            
                             rows += ` 
                                 <tr>
                                     <td>${network.ssid}</td>
                                     <td>${network.bssid}</td>
                                     <td>${encryptionType}</td>
                                     <td>${network.signal}</td>
-                                    <td class="${threatLevel}">${network.threats}</td> <!-- Threat Display -->
+                                    <td class="${threatLevel}">
+                                        ${network.threats}
+                                        ${blockButton}
+                                    </td>
                                 </tr>
                             `;
                         }

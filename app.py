@@ -1,97 +1,36 @@
 from flask import Flask, render_template, jsonify, request
-import pywifi
-from pywifi import PyWiFi, const, Profile
-from pymongo import MongoClient
-import time
-from collections import defaultdict
+import logging
+import datetime
+from wifi_scanner import WiFiScanner
+from database import DatabaseManager
+from config import DEBUG_MODE
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
-# MongoDB connection
-client = MongoClient("mongodb://localhost:27017/")
-db = client["wifi_bastion"]
-collection = db["wifi_scans"]
+# Initialize components
+db_manager = DatabaseManager()
+wifi_scanner = WiFiScanner(db_manager)
 
-def get_encryption_type(network):
-    """Determine Wi-Fi encryption type."""
-    encryption = "Unknown"
-    akm_mapping = {
-        0: "Open (No Encryption)",
-        1: "WPA",
-        2: "WPA2",
-        3: "WPA3",
-        4: "WPA2-PSK",
-        5: "WPA3-PSK"
-    }
+# Custom Jinja filter for timestamp conversion
+@app.template_filter('timestamp_to_date')
+def timestamp_to_date(timestamp):
+    """Convert a Unix timestamp to a readable date format."""
+    if timestamp:
+        return datetime.datetime.fromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
+    return 'N/A'
 
-    if hasattr(network, 'akm') and network.akm:
-        akm_value = network.akm[0]
-        encryption = akm_mapping.get(akm_value, "Unknown encryption")
-
-    return encryption
-
-def detect_threats(networks):
-    """Analyze networks and detect security threats."""
-    ssid_counts = defaultdict(list)  # Store BSSIDs per SSID
-    bssid_counts = defaultdict(list)  # Store SSIDs per BSSID
-
-    for net in networks:
-        ssid_counts[net["ssid"]].append(net)
-        bssid_counts[net["bssid"]].append(net)
-
-    for net in networks:
-        threats = []
-
-        # **Evil Twin Attack Detection** (Multiple BSSIDs for the same SSID)
-        if len(ssid_counts[net["ssid"]]) > 1:
-            threats.append("🚨 Evil Twin Attack Detected")
-
-        # **MAC Spoofing Detection** (Multiple SSIDs with same BSSID)
-        if len(bssid_counts[net["bssid"]]) > 1:
-            threats.append("🚨 MAC Spoofing Detected")
-
-        # **Weak Encryption Detection**
-        if net["encryption"] in ["Open (No Encryption)", "WPA"]:
-            threats.append("⚠️ Weak Encryption")
-
-        # **Hidden SSID Detection**
-        if net["ssid"] == "":
-            threats.append("⚠️ Hidden SSID Detected")
-
-        # **Signal Strength Anomalies (Possible Fake AP)**
-        if len(ssid_counts[net["ssid"]]) > 1:
-            signal_strengths = [int(n["signal"].split(" ")[0]) for n in ssid_counts[net["ssid"]]]
-            max_signal, min_signal = max(signal_strengths), min(signal_strengths)
-            if abs(max_signal - min_signal) > 30:  # If signal variance is large, it’s suspicious
-                threats.append("🚨 Signal Anomaly (Possible Fake AP)")
-
-        net["threats"] = ", ".join(threats) if threats else "✅ No Threats Detected"
-
-    return networks
-
-def get_wifi_networks():
-    """Scan for Wi-Fi networks and detect security risks."""
-    wifi = PyWiFi()
-    iface = wifi.interfaces()[0]
-    iface.scan()
-    time.sleep(3)  # Wait for scan completion
-    results = iface.scan_results()
-
-    networks = []
-    for network in results:
-        ssid = network.ssid.strip()
-        if not ssid:
-            continue
-
-        network_info = {
-            'ssid': ssid,
-            'bssid': network.bssid,
-            'signal': f"{network.signal} dBm",
-            'encryption': get_encryption_type(network),
-        }
-        networks.append(network_info)
-
-    return detect_threats(networks)  # Detect threats before returning
+# Custom Jinja filter to replace Django's {% now %} tag
+@app.template_filter('now')
+def now_filter(format_string):
+    """Return the current date in the specified format."""
+    today = datetime.datetime.now()
+    if format_string == 'F j, Y':
+        return today.strftime('%B %d, %Y')
+    return today.strftime(format_string)
 
 @app.route("/")
 def home():
@@ -104,44 +43,124 @@ def scan_page():
 @app.route("/scan", methods=["POST"])
 def scan():
     """Perform Wi-Fi scan and detect threats, then store results in MongoDB."""
-    networks = get_wifi_networks()
+    try:
+        # Use the WiFiScanner to scan networks
+        networks = wifi_scanner.scan_networks()
 
-    if networks:
-        try:
-            existing_ssids = [net['ssid'] for net in networks]
-            existing_networks = collection.find({"ssid": {"$in": existing_ssids}})
-            existing_ssids_in_db = {doc['ssid']: doc for doc in existing_networks}
+        if not networks:
+            logger.warning("No networks found during scan")
+            return jsonify({"status": "error", "message": "No networks found."}), 404
 
-            new_networks = [net for net in networks if net['ssid'] not in existing_ssids_in_db]
+        # Get existing networks from database
+        existing_ssids = [net['ssid'] for net in networks]
+        existing_ssids_in_db = db_manager.find_existing_networks(existing_ssids)
 
-            if new_networks:
-                insert_result = collection.insert_many(new_networks)
-                for net, obj_id in zip(new_networks, insert_result.inserted_ids):
+        # Identify new networks to insert
+        new_networks = [net for net in networks if net['ssid'] not in existing_ssids_in_db]
+
+        # Insert new networks into database
+        if new_networks:
+            success, result = db_manager.insert_networks(new_networks)
+            if success:
+                # Add IDs to the new networks
+                for net, obj_id in zip(new_networks, result):
                     net["_id"] = str(obj_id)  # Convert ObjectId to string
-            
-            # Convert existing networks' ObjectId before returning JSON
-            for net in networks:
-                if net['ssid'] in existing_ssids_in_db:
-                    net["_id"] = str(existing_ssids_in_db[net['ssid']]['_id'])
+            else:
+                logger.error(f"Database insertion error: {result}")
+                return jsonify({"status": "error", "message": result}), 500
+        
+        # Add IDs to existing networks
+        for net in networks:
+            if net['ssid'] in existing_ssids_in_db:
+                net["_id"] = str(existing_ssids_in_db[net['ssid']]['_id'])
 
-        except Exception as e:
-            print(f"Error inserting into MongoDB: {str(e)}")
-            return jsonify({"status": "error", "message": str(e)}), 500
+        return jsonify(networks)  # All networks now have string _id fields
 
-        return jsonify(networks)  # Now all `_id` fields are strings
-
-    return jsonify({"status": "error", "message": "No networks found."}), 404
+    except Exception as e:
+        logger.error(f"Error during scan operation: {str(e)}")
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 @app.route('/history')
 def history():
     """Retrieve Wi-Fi scan history."""
     try:
-        scans = collection.find()
-        formatted_scans = [{"_id": str(scan["_id"]), **scan} for scan in scans]
+        success, result = db_manager.get_all_scans()
+        
+        if not success:
+            logger.error(f"Error fetching scan history: {result}")
+            return jsonify({"status": "error", "message": result}), 500
+            
+        formatted_scans = [{"_id": str(scan["_id"]), **{k: v for k, v in scan.items() if k != "_id"}} for scan in result]
         return render_template('history.html', scans=formatted_scans)
     except Exception as e:
-        print(f"Error fetching scan history: {str(e)}")
+        logger.error(f"Error in history route: {str(e)}")
         return jsonify({"status": "error", "message": str(e)}), 500
 
+@app.route('/block_network', methods=['POST'])
+def block_network():
+    """Add a network to the blocklist."""
+    try:
+        network_id = request.form.get('network_id')
+        bssid = request.form.get('bssid')
+        
+        if not network_id or not bssid:
+            return jsonify({"status": "error", "message": "Missing network ID or BSSID"}), 400
+            
+        success, message = db_manager.block_network(network_id, bssid)
+        
+        if not success:
+            logger.error(f"Error blocking network: {message}")
+            return jsonify({"status": "error", "message": message}), 500
+            
+        return jsonify({"status": "success", "message": message})
+    except Exception as e:
+        logger.error(f"Error in block_network route: {str(e)}")
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+@app.route('/unblock_network', methods=['POST'])
+def unblock_network():
+    """Remove a network from the blocklist."""
+    try:
+        network_id = request.form.get('network_id')
+        
+        if not network_id:
+            return jsonify({"status": "error", "message": "Missing network ID"}), 400
+            
+        success, message = db_manager.unblock_network(network_id)
+        
+        if not success:
+            logger.error(f"Error unblocking network: {message}")
+            return jsonify({"status": "error", "message": message}), 500
+            
+        return jsonify({"status": "success", "message": message})
+    except Exception as e:
+        logger.error(f"Error in unblock_network route: {str(e)}")
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+@app.route('/blocked')
+def blocked_networks():
+    """Display all blocked networks."""
+    try:
+        success, blocked = db_manager.get_blocked_networks()
+        
+        if not success:
+            logger.error(f"Error fetching blocked networks: {blocked}")
+            return jsonify({"status": "error", "message": blocked}), 500
+            
+        return render_template('blocked.html', networks=blocked)
+    except Exception as e:
+        logger.error(f"Error in blocked_networks route: {str(e)}")
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+@app.route('/privacy')
+def privacy():
+    """Display privacy policy."""
+    return render_template('privacy.html')
+
+@app.route('/terms')
+def terms():
+    """Display terms of service."""
+    return render_template('terms.html')
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=DEBUG_MODE)
