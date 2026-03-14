@@ -1,60 +1,66 @@
-Wi-Fi Bastion 🛡️
+# Wi-Fi Bastion 🛡️
+**A Software-Defined Wireless Intrusion Prevention System (WIPS)**
 
-Wi-Fi Bastion is a proactive Wireless Intrusion Prevention System (WIPS) designed to monitor airwaves for security threats, detect rogue access points, and enforce hardware-level mitigation. By combining Python (Scapy/Flask) with a React.js dashboard, it translates complex RF telemetry into actionable security intelligence.
+Wi-Fi Bastion is a proactive security perimeter designed to monitor airwaves for de-authentication floods, detect rogue access points (Evil Twins), and harden network gateways via OS-level hardware filtering. It translates complex RF telemetry into actionable security intelligence through a modern web dashboard.
 
-🚀 Key Features
-Rogue Point Detection: Identifies Evil Twin clones using BSSID/OUI verification and RSSI anomaly detection.
-Intrusion Analysis: Detects active De-authentication floods and ARP spoofing in real-time.
-Gateway Audit: Probes for DNS hijacking and critical port exposure (Canary checks).
-Active Mitigation: One-click hardware kill-switch integrated with the Windows WLAN API.
-Forensic Archive: Persistent logging of environment snapshots in MongoDB.
-Security Reports: Generates automated PDF security audits of the network topology.
+## 🚀 Key Features
+* **Intrusion Analysis Engine:** Real-time sniffing of 802.11 management frames using Scapy.
+* **Rogue Point Detection:** Identifies Evil Twin clones by verifying BSSIDs against OUI databases and signal strength (RSSI) anomalies.
+* **Gateway Intelligence Audit:** Probes for DNS hijacking (Canary checks) and critical port exposure.
+* **Active Mitigation:** Integrated with Windows WLAN API to blacklist malicious networks at the driver level.
+* **Forensic Archive:** Comprehensive scan history and threat incident logging using MongoDB.
+* **Automated Reporting:** Generates PDF security audit reports for offline compliance review.
 
-🏗️ Architecture
-The system follows a tiered architecture:
+## 🛠️ Tech Stack
+* **Frontend:** React.js, Tailwind CSS, Lucide Icons
+* **Backend:** Python (Flask), Scapy (Packet Engine), Nmap (Service Mapping)
+* **Database:** MongoDB
+* **OS Interface:** Windows WLAN API
 
-Hardware/OS Tier: Scapy & Nmap for packet sniffing; Windows WLAN API for blocking.
-Logic Tier: Flask API and the "Watchdog" heuristic engine.
-Data Tier: MongoDB for forensic storage.
-Presentation Tier: React.js Dashboard with real-time Radar Charts (Trust Index).
+## 📋 Installation & Setup
 
-🛠️ Tech Stack
-Frontend: React.js, Tailwind CSS, Lucide Icons
-Backend: Python 3.x, Flask, Flask-CORS
-Security Engines: Scapy (Packet Analysis), Nmap (Service Discovery)
-Database: MongoDB
-OS Integration: Windows WLAN API
+### Prerequisites
+* Python 3.8+
+* Node.js & npm
+* MongoDB Community Server
+* **Npcap:** Required for raw packet sniffing on Windows. [Download here](https://npcap.com/). *Ensure "Support raw 802.11 traffic" is checked during install.*
 
-📋 Installation & Setup
-Prerequisites
-Python 3.8+
-Node.js & npm
-MongoDB Compass
-Npcap (Required for Scapy on Windows - Install with "Dot11" support)
-
-1. Backend Setup
-```
+### 1. Backend Setup
+```bash
+# Navigate to backend directory
 cd backend
+
+# Create and activate virtual environment
 python -m venv venv
-source venv/bin/activate  # Or venv\Scripts\activate on Windows
+source venv/bin/activate  # Windows: venv\Scripts\activate
+
+# Install dependencies
 pip install -r requirements.txt
+
+# Run the server (Run as Administrator for Packet Sniffing)
 python app.py
-```
-
 2. Frontend Setup
-
-```
+Bash
+# Navigate to frontend directory
 cd frontend
+
+# Install packages
 npm install
+
+# Start development server
 npm start
 ```
 
 📖 Usage
-Ensure your Wi-Fi adapter supports Monitor Mode.
-Launch the Control Center via the browser at http://localhost:3000.
-Click "Initialize Security Scan" to begin real-time airwave monitoring.
-View the Trust Index for nearby networks.
-If a threat is flagged (Red Alert), use the "Restrict" button to sever the connection at the driver level.
+Initialize Control Center: Launch the app and click "Initialize Security Scan."
 
-⚠️ Disclaimer
-This tool is developed for educational and ethical security auditing purposes only. Use it only on networks you own or have explicit permission to test. Unauthorized access or disruption of wireless networks is illegal.
+Monitor Radar: View the "Trust Index" of nearby APs.
+
+Audit Topology: Use the Topology tab to fingerprint devices on your network.
+
+Enforce Policy: If an "Evil Twin" is detected, use the Restrict button to block the BSSID instantly.
+
+⚖️ License & Disclaimer
+This project is developed for educational purposes at Malla Reddy University. Unauthorized use of this tool against networks without permission is strictly prohibited and illegal.
+
+Developed by: [Your Name] | Batch: 2022-2026 | Department: CSE
