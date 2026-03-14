@@ -39,8 +39,10 @@ pip install -r requirements.txt
 
 # Run the server (Run as Administrator for Packet Sniffing)
 python app.py
-2. Frontend Setup
-Bash
+```
+
+###2. Frontend Setup
+```Bash
 # Navigate to frontend directory
 cd frontend
 
