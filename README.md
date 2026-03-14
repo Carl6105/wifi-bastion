@@ -51,7 +51,7 @@ npm install
 npm start
 ```
 
-📖 Usage
+## 📖 Usage
 Initialize Control Center: Launch the app and click "Initialize Security Scan."
 
 Monitor Radar: View the "Trust Index" of nearby APs.
@@ -60,7 +60,7 @@ Audit Topology: Use the Topology tab to fingerprint devices on your network.
 
 Enforce Policy: If an "Evil Twin" is detected, use the Restrict button to block the BSSID instantly.
 
-⚖️ License & Disclaimer
+## ⚖️ License & Disclaimer
 This project is developed for educational purposes at Malla Reddy University. Unauthorized use of this tool against networks without permission is strictly prohibited and illegal.
 
-Developed by: [Your Name] | Batch: 2022-2026 | Department: CSE
+Developed by: Sai Lakshman Rangisetti, S Mohammed Aadil, T. Bhavesh | Batch: 2022-2026 | Department: CSE - Cyber Security
