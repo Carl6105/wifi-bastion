@@ -1,0 +1,17 @@
+# Python bytecode (the stuff you want to hide)
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environments
+venv/
+env/
+.env
+
+# IDE Metadata
+.vscode/
+.idea/
+
+# Database & OS
+*.log
+.DS_Store
