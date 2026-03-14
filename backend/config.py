@@ -7,7 +7,12 @@ MONGO_COLLECTION = "wifi_scans"
 
 # Application Settings
 DEBUG_MODE = True
+PORT = 5000 # The port your Flask API will run on
 SCAN_WAIT_TIME = 3  # seconds to wait for scan completion
+
+# CORS Configuration
+# This allows your React frontend to communicate with this Python backend
+CORS_ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173"]
 
 # Threat Detection Settings
 WEAK_ENCRYPTION_TYPES = ["Open (No Encryption)", "WPA"]

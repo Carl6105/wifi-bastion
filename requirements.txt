@@ -1,5 +1,17 @@
-# Wi-Fi Bastion Requirements
-flask==2.0.1
-pymongo==4.0.1
-pywifi==1.1.12
-python-dotenv==0.19.1
+# Web Framework & CORS
+flask==3.0.0
+flask-cors==4.0.0
+
+# Network Analysis & Security
+scapy==2.5.0
+python-nmap==0.7.1
+
+# Database
+pymongo==4.6.1
+
+# PDF Generation (for Feature 19)
+reportlab==4.0.8
+
+# Utilities
+requests==2.31.0
+python-dotenv==1.0.0
