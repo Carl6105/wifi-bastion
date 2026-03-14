@@ -41,7 +41,7 @@ pip install -r requirements.txt
 python app.py
 ```
 
-###2. Frontend Setup
+### 2. Frontend Setup
 ```Bash
 # Navigate to frontend directory
 cd frontend
