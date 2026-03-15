@@ -1,4 +1,4 @@
-# Wi-Fi Bastion 🛡️
+# 🛡️ Wi-Fi Bastion 
 
 ### A Software-Defined Wireless Intrusion Prevention System (WIPS)
 
