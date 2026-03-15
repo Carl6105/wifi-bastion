@@ -1,0 +1,49 @@
+# ============================================================
+# Wi-Fi Bastion — Python Dependencies
+# ============================================================
+# Pin major.minor with >= to allow patch updates while
+# preventing breaking changes from major version bumps.
+# Run:  pip install -r requirements.txt
+# ============================================================
+
+# --- Web Framework & CORS -----------------------------------
+flask>=3.0.0,<4.0.0
+flask-cors>=4.0.0,<5.0.0
+
+# --- Real-time WebSocket push --------------------------------
+flask-socketio>=5.3.6,<6.0.0
+python-socketio>=5.10.0,<6.0.0
+
+# --- Rate Limiting ------------------------------------------
+flask-limiter>=3.5.0,<4.0.0
+
+# --- Background Scheduling ----------------------------------
+apscheduler>=3.10.4,<4.0.0
+
+# --- Network Analysis & Packet Engine -----------------------
+scapy>=2.5.0,<3.0.0           # 802.11 packet sniffing & deauth transmission
+python-nmap>=0.7.1,<1.0.0     # OS fingerprinting & device discovery
+pywifi>=1.1.12                 # Wi-Fi interface scanning (Windows/Linux)
+
+# --- Database -----------------------------------------------
+pymongo>=4.6.1,<5.0.0         # MongoDB driver
+
+# --- PDF Generation -----------------------------------------
+reportlab>=4.0.8,<5.0.0       # Platypus layout engine for audit reports
+
+# --- Utilities ----------------------------------------------
+requests>=2.31.0,<3.0.0       # HTTP client
+python-dotenv>=1.0.0,<2.0.0   # .env file loading for local dev
+
+# --- Production Server --------------------------------------
+# Use gunicorn instead of Flask's dev server in production:
+#   gunicorn "app:create_app()" --worker-class eventlet --workers 1 --bind 0.0.0.0:5000
+# Note: flask-socketio requires eventlet or gevent worker - NOT multi-process workers
+eventlet>=0.35.2               # Async worker for gunicorn + SocketIO
+
+# --- OUI Vendor Lookup (optional — uses built-in table if unavailable) ----
+# requests already listed above — used for OUI database download
+
+# --- Desktop GUI -------------------------------------------
+# tkinter is included with standard Python (no pip install needed)
+# Linux only: sudo apt install python3-tk

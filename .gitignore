@@ -1,17 +1,58 @@
-# Python bytecode (the stuff you want to hide)
+# ── Python ──────────────────────────────────────────────────────
 __pycache__/
 *.py[cod]
-*$py.class
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
 
-# Virtual Environments
+# Virtual environments
 venv/
 env/
-.env
+.venv/
+ENV/
 
-# IDE Metadata
+# ── Environment / Secrets ────────────────────────────────────────
+# NEVER commit these — they contain passwords and API keys
+.env
+*.env
+!.env.example
+
+# ── Logs & Reports ───────────────────────────────────────────────
+logs/
+*.log
+reports/
+*.pdf
+
+# ── OUI cache (large file, auto-downloaded) ──────────────────────
+.wifi_bastion/
+oui_cache.csv
+
+# ── Node / Frontend ──────────────────────────────────────────────
+node_modules/
+frontend/dist/
+frontend/.vite/
+.npm
+
+# ── OS files ─────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── IDE ──────────────────────────────────────────────────────────
 .vscode/
 .idea/
+*.swp
+*.swo
 
-# Database & OS
-*.log
-.DS_Store
+# ── Debug scripts (don't need to be in repo) ─────────────────────
+debug_channel.py
+debug_channel2.py
+check_file.py
+strengthening_plan.md
+app_v2.py

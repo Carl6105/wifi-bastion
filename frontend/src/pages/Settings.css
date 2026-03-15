@@ -1,0 +1,114 @@
+@import './pages.css';
+
+.settings-card {
+  background: #111520;
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.settings-card__title {
+  font-family: 'Syne', sans-serif;
+  font-size: .85rem;
+  font-weight: 700;
+  color: #c8d3e0;
+  padding: 1rem 1.25rem .75rem;
+  border-bottom: 1px solid rgba(255,255,255,.05);
+  letter-spacing: -.01em;
+}
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .9rem 1.25rem;
+  gap: 1.5rem;
+}
+.setting-row--slider { align-items: flex-start; }
+.setting-row__info { flex: 1; }
+.setting-row__label { font-size: .85rem; color: #c8d3e0; font-weight: 500; margin-bottom: 3px; }
+.setting-row__sub   { font-size: .75rem; color: #4a5568; line-height: 1.5; }
+
+.setting-divider { height: 1px; background: rgba(255,255,255,.04); margin: 0 1.25rem; }
+
+/* Toggle */
+.toggle {
+  width: 40px; height: 22px;
+  background: #1e2635;
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 11px;
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+  transition: background .2s ease, border-color .2s ease;
+}
+.toggle--on { background: #3b7dd8; border-color: #3b7dd8; }
+.toggle__knob {
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 16px; height: 16px;
+  background: #7e8fa4;
+  border-radius: 50%;
+  transition: transform .2s ease, background .2s ease;
+}
+.toggle--on .toggle__knob { transform: translateX(18px); background: #fff; }
+
+/* Slider */
+.slider-wrap {
+  display: flex; align-items: center; gap: .75rem; flex-shrink: 0; min-width: 200px;
+}
+.range-input {
+  -webkit-appearance: none; appearance: none;
+  flex: 1; height: 4px;
+  background: #1e2635;
+  border-radius: 2px; outline: none; cursor: pointer;
+}
+.range-input::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 14px; height: 14px;
+  border-radius: 50%; background: #3b7dd8; cursor: pointer;
+}
+.range-val {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: .72rem; color: #3b7dd8; min-width: 48px; text-align: right;
+}
+
+/* Warn banner */
+.setting-warn {
+  margin: 0 1.25rem .9rem;
+  padding: .6rem .9rem;
+  background: rgba(180,83,9,.1);
+  border: 1px solid rgba(180,83,9,.3);
+  border-radius: 4px;
+  font-size: .75rem; color: #b45309; line-height: 1.5;
+}
+
+/* Channels */
+.settings-note { padding: .75rem 1.25rem; font-size: .8rem; color: #4a5568; }
+.settings-note code { font-family: 'IBM Plex Mono', monospace; color: #7e8fa4; }
+.channels-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 1px; background: rgba(255,255,255,.04); margin: 0 0 1px; }
+.channel-tile {
+  background: #0b0e13; padding: 1rem; display: flex; flex-direction: column; gap: .3rem;
+  border-top: 2px solid rgba(255,255,255,.06);
+  transition: background .15s ease;
+}
+.channel-tile--on { border-top-color: #2d7d6f; }
+.channel-tile:hover { background: #111520; }
+.channel-tile__dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #4a5568;
+  margin-bottom: .1rem;
+}
+.channel-tile--on .channel-tile__dot { background: #2d7d6f; box-shadow: 0 0 6px rgba(45,125,111,.5); }
+.channel-tile__label  { font-family: 'Syne', sans-serif; font-size: .82rem; font-weight: 600; color: #c8d3e0; }
+.channel-tile__status { font-size: .72rem; color: #4a5568; }
+.channel-tile--on .channel-tile__status { color: #2d7d6f; }
+.channel-tile__env    { font-family: 'IBM Plex Mono', monospace; font-size: .58rem; color: #4a5568; margin-top: .2rem; }
+
+/* Config table */
+.config-table { padding: .5rem 1.25rem 1rem; display: flex; flex-direction: column; gap: .3rem; }
+.config-row { display: flex; align-items: center; gap: 1rem; font-family: 'IBM Plex Mono', monospace; font-size: .68rem; }
+.config-row__key { color: #4a5568; min-width: 220px; }
+.config-row__val { color: #7e8fa4; }
+
+@media(max-width:800px) { .channels-grid { grid-template-columns: 1fr 1fr; } .slider-wrap { min-width: 140px; } }
+@media(max-width:500px) { .channels-grid { grid-template-columns: 1fr; } .setting-row { flex-direction: column; align-items: flex-start; } }

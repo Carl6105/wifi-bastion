@@ -1,0 +1,133 @@
+/* navbar.css — Wi-Fi Bastion Navigation */
+
+.navbar {
+  height: 54px;
+  background: #111520;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 9999;
+  gap: 1rem;
+  box-shadow: 0 1px 12px rgba(0,0,0,0.4);
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+.brand-mark {
+  width: 28px;
+  height: 28px;
+  background: rgba(59,125,216,0.15);
+  border: 1px solid rgba(59,125,216,0.3);
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.65rem;
+  color: #3b7dd8;
+  font-weight: 500;
+  flex-shrink: 0;
+  transition: background 0.2s ease;
+}
+.nav-brand:hover .brand-mark { background: rgba(59,125,216,0.25); }
+.brand-label__name {
+  font-family: 'Syne', system-ui, sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #c8d3e0;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  display: block;
+}
+.brand-label__sub {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.48rem;
+  color: #4a5568;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  display: block;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  list-style: none;
+  gap: 1px;
+  padding: 0;
+  margin: 0;
+}
+.nav-link {
+  display: flex;
+  align-items: center;
+  padding: 0.3rem 0.75rem;
+  text-decoration: none;
+  border-radius: 5px;
+  border: 1px solid transparent;
+  transition: all 0.18s ease;
+}
+.nav-link__label {
+  font-family: 'Outfit', system-ui, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #7e8fa4;
+  transition: color 0.18s ease;
+}
+.nav-link:hover                { background: #1a2030; }
+.nav-link:hover .nav-link__label { color: #c8d3e0; }
+.nav-link--active {
+  background: rgba(59,125,216,0.1);
+  border-color: rgba(59,125,216,0.25);
+}
+.nav-link--active .nav-link__label { color: #3b7dd8; }
+
+.nav-status {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  flex-shrink: 0;
+}
+.status-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,0.06);
+  background: #0e1219;
+}
+.status-pill__label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.07em;
+  color: #4a5568;
+}
+.status-pill--online   .status-pill__label { color: #2d7d6f; }
+.status-pill--offline  .status-pill__label { color: #c0392b; }
+.status-pill--checking .status-pill__label { color: #b45309; }
+.status-pill__latency {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.52rem;
+  color: #4a5568;
+}
+.status-meta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.5rem;
+  color: #4a5568;
+  opacity: 0.6;
+}
+.signal-icon { display:flex; align-items:flex-end; gap:2px; height:12px; }
+.signal-bar  { width:3px; border-radius:1px; background:#4a5568; opacity:.3; transition: all .3s ease; }
+.signal-bar--lit { background:#2d7d6f; opacity:1; }
+
+@media (max-width: 860px) { .brand-label__sub,.status-meta { display:none; } }
+@media (max-width: 640px) { .brand-mark { display:none; } .navbar { padding:0 1rem; } }
